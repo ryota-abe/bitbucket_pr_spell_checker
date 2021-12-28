@@ -8,6 +8,7 @@ const config: ConfigurationFactory = () => {
     entry: {
       content_scripts: path.join(__dirname, 'src', 'content_scripts.ts')
     },
+    devtool: false,
     output: {
       path: path.join(__dirname, 'dist'),
       filename: '[name].js'
