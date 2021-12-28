@@ -1,7 +1,11 @@
 function onSave() {
     const dic = document.getElementById('user-dictionary');
     const userDictionary = dic.value.split('\n').map(s => s.trim().toLowerCase());
-    chrome.storage.sync.set({userDictionary});
+    chrome.storage.sync.set({userDictionary}, () => {
+        const message = document.getElementById('message');
+        message.innerText = 'saved.';
+        setTimeout(() => { message.innerText = '' }, 750);
+    });
 }
 
 function onRestore() {
