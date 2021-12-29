@@ -1,97 +1,10 @@
 import { browser } from 'webextension-polyfill-ts'
+import { additionalWords } from './additional_words.ts'
+
 const Typo = require('typo-js') as any;
 
-const additionalWords = [
-  'accessor',
-  'accessors',
-  'admin',
-  'ajax',
-  'args',
-  'async',
-  'attr',
-  'auth',
-  'autowired',
-  'bool',
-  'calc',
-  'charset',
-  'checkbox',
-  'checkboxes',
-  'chrono',
-  'concat',
-  'config',
-  'const',
-  'csrf',
-  'ctrl',
-  'desc',
-  'diff',
-  'doma',
-  'draggable',
-  'dropdown',
-  'dropdowns',
-  'enum',
-  'eval',
-  'github',
-  'href',
-  'https',
-  'i18n',
-  'init',
-  'inline',
-  'instanceof',
-  'interop',
-  'iterable',
-  'javax',
-  'jdbc',
-  'json',
-  'keydown',
-  'lombok',
-  'metadata',
-  'mousedown',
-  'mouseenter',
-  'mouseleave',
-  'mouseup',
-  'namespace',
-  'nbsp',
-  'nonnull',
-  'nowrap',
-  'nullable',
-  'param',
-  'params',
-  'plugin',
-  'plugins',
-  'popup',
-  'popups',
-  'prepend',
-  'prev',
-  'println',
-  'readonly',
-  'rect',
-  'regex',
-  'regexp',
-  'rgba',
-  'seasar',
-  'servlet',
-  'stringify',
-  'struct',
-  'stylesheet',
-  'tbody',
-  'textarea',
-  'thead',
-  'throwable',
-  'todo',
-  'tooltip',
-  'tooltips',
-  'typeof',
-  'updatable',
-  'util',
-  'utils',
-  'validator',
-  'validators',
-  'webkit',
-  'xsrf',
-  'yyyy',
-];
-
 let userDictionary: string[] = [];
+let dictionary: any
 
 function checkSpell(article: HTMLElement) {
   const rows = article.querySelectorAll<HTMLElement>('.type-normal .code-diff, .type-add .code-diff');
@@ -117,7 +30,7 @@ function checkSpell(article: HTMLElement) {
     setTimeout(() => {
       outputDiv.innerHTML = '';
       const buttons = identifiers.map(word => {
-        const button = document.createElement('button');
+        const button = createMisspelledWordButton(word);
         button.onclick = e => {
           const isSelected = button.style.textDecorationStyle === 'wavy';
           Object.keys(elementMap).forEach(key => {
@@ -129,17 +42,22 @@ function checkSpell(article: HTMLElement) {
             setErrorStyle(button);
           }
         }
-        button.innerText = word;
-        button.style.border = '1px solid rgb(223, 225, 230)';
-        button.style.margin = '4px';
-        button.style.height = '32px';
-        button.style.cursor = 'pointer';
         return button;
       });
       buttons.forEach(b => outputDiv.append(b));
     });
   }
   (outputDiv.parentNode as HTMLElement).style.display = identifiers.length ? 'flex' : 'none';
+}
+
+function createMisspelledWordButton(word: string) {
+  const button = document.createElement('button');
+  button.innerText = word;
+  button.style.border = '1px solid rgb(223, 225, 230)';
+  button.style.margin = '4px';
+  button.style.height = '32px';
+  button.style.cursor = 'pointer';
+  return button;
 }
 
 function setErrorStyle(element: HTMLElement) {
@@ -204,8 +122,6 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
   article.prepend(outer);
   return right;
 }
-
-let dictionary: any
 
 window.onload = async function() {
   dictionary = new Typo("en_US");
