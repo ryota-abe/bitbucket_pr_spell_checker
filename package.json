@@ -1,0 +1,25 @@
+{
+  "name": "chrome-extension-typescript",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "typo-js": "^1.2.1",
+    "typo-js-ts": "^2.0.4",
+    "webextension-polyfill-ts": "^0.11.0"
+  },
+  "devDependencies": {
+    "@types/copy-webpack-plugin": "^5.0.0",
+    "@types/webpack": "^4.41.0",
+    "copy-webpack-plugin": "^5.0.5",
+    "es6-loader": "^0.2.0",
+    "ts-loader": "^6.2.1",
+    "ts-node": "^8.5.2",
+    "typescript": "^4.0.0",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  }
+}
