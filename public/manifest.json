@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Bitbucket PR Spell Checker",
   "short_name": "SpellChecker",
-  "version": "0.0.0.1",
+  "version": "0.1.0",
   "description": "Perform spell checking on Bitbucket pull requests.",
   "icons": {
     "16": "icon16.png",
