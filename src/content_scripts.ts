@@ -5,6 +5,7 @@ const Typo = require('typo-js') as any;
 
 let userDictionary: string[] = [];
 let dictionary: any
+const misspellingWords = new Set<string>()
 
 function checkSpell(article: HTMLElement) {
   const rows = article.querySelectorAll<HTMLElement>('.type-normal .code-diff, .type-add .code-diff');
@@ -46,7 +47,12 @@ function checkSpell(article: HTMLElement) {
       });
       buttons.forEach(b => outputDiv.append(b));
     });
+
+    if (misspellingWords.size) {
+      console.log('Detected Misspellings: ', Array.from(misspellingWords));
+    }
   }
+  // hide div when there's nothing to display
   (outputDiv.parentNode as HTMLElement).style.display = identifiers.length ? 'flex' : 'none';
 }
 
@@ -78,7 +84,7 @@ function isMisspelled(identifier: string) {
       return false;
     }
     if (!dictionary.check(word) && !dictionary.check(word.toUpperCase())) {
-      console.log('Misspelled: ' + word);
+      misspellingWords.add(word);
       return true;
     }
     return false;
