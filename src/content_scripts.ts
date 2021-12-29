@@ -80,7 +80,7 @@ const additionalWords = [
 let userDictionary: string[] = [];
 
 function checkSpell(article: HTMLElement) {
-  const rows = article.querySelectorAll<HTMLElement>('.type-normal .code-diff');
+  const rows = article.querySelectorAll<HTMLElement>('.type-normal .code-diff, .type-add .code-diff');
   const identifierSet = new Set<string>();
   const elementMap: Record<string, HTMLElement[]> = {};
   const splitRegex = /[0-9 \t!"#$%&'()\[\]{}\-\=^~\\|@`;+:*,.<>/_?]/;
