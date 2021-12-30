@@ -2,6 +2,9 @@ import { ConfigurationFactory } from 'webpack'
 import path from 'path'
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 
+const ZipPlugin = require('zip-webpack-plugin')
+const packageJson = require('./package.json')
+
 const config: ConfigurationFactory = () => {
   return {
     mode: 'development',
@@ -22,7 +25,8 @@ const config: ConfigurationFactory = () => {
         },
         {
           test: /\.(aff|dic)$/,
-          use: [{ loader: 'raw-loader', options: { esModule: false } }],
+          loader: 'raw-loader',
+          options: { esModule: false },
         },
       ],
     },
@@ -31,8 +35,10 @@ const config: ConfigurationFactory = () => {
     },
     plugins: [
       new CopyWebpackPlugin([
+        { from: 'src/manifest.json', to: '.', transform: content => content.toString().replace('__VERSION__', packageJson.version) },
         { from: 'public', to: '.' },
-      ])
+      ]),
+      new ZipPlugin({filename: `bitbucket_pr_spell_checker-${packageJson.version}.zip`})
     ]
   }
 }
