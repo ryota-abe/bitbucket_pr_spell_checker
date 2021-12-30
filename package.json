@@ -1,6 +1,6 @@
 {
-  "name": "chrome-extension-typescript",
-  "version": "1.0.0",
+  "name": "bitbucket_pr_spell_checker",
+  "version": "0.2.0",
   "main": "index.js",
   "scripts": {
     "build": "webpack"
@@ -16,6 +16,7 @@
     "@types/webpack": "^4.41.0",
     "copy-webpack-plugin": "^5.0.5",
     "es6-loader": "^0.2.0",
+    "raw-loader": "^4.0.2",
     "ts-loader": "^6.2.1",
     "ts-node": "^8.5.2",
     "typescript": "^4.0.0",

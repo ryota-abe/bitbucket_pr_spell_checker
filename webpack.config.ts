@@ -16,19 +16,22 @@ const config: ConfigurationFactory = () => {
     module: {
       rules: [
         {
-          test: /.ts$/,
+          test: /\.ts$/,
           use: 'ts-loader',
           exclude: '/node_modules/'
+        },
+        {
+          test: /\.(aff|dic)$/,
+          use: [{ loader: 'raw-loader', options: { esModule: false } }],
         },
       ],
     },
     resolve: {
-      extensions: ['ts', 'js']
+      extensions: ['.ts', '.js']
     },
     plugins: [
       new CopyWebpackPlugin([
         { from: 'public', to: '.' },
-        { from: 'node_modules/typo-js-ts/dist/es/dictionaries/en_US', to: './typo/dictionaries/en_US' },
       ])
     ]
   }

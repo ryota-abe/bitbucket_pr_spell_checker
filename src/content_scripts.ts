@@ -1,7 +1,9 @@
 import { browser } from 'webextension-polyfill-ts'
-import { additionalWords } from './additional_words.ts'
+import { additionalWords } from './additional_words';
 
 const Typo = require('typo-js') as any;
+const affData = require('typo-js/dictionaries/en_US/en_US.aff')
+const dicData = require('typo-js/dictionaries/en_US/en_US.dic')
 
 let userDictionary: string[] = [];
 let dictionary: any
@@ -130,7 +132,7 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
 }
 
 window.onload = async function() {
-  dictionary = new Typo("en_US");
+  dictionary = new Typo('en_US', affData, dicData);
   const observer = new MutationObserver(main);
   const body = document.getElementsByTagName('body')[0];
   observer.observe(body, {subtree: true, childList: true});

@@ -1,15 +1,15 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Bitbucket PR Spell Checker",
   "short_name": "SpellChecker",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Perform spell checking on Bitbucket pull requests.",
   "icons": {
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
   },
-  "browser_action": {
+  "action": {
     "default_icon": "icon48.png",
     "default_popup": "options.html"
   },
@@ -18,9 +18,6 @@
       "matches": ["https://bitbucket.org/*/*/pull-requests/*"],
       "js": ["content_scripts.js"]
     }
-  ],
-  "web_accessible_resources": [
-    "typo/*"
   ],
   "options_ui": {
       "page": "options.html",
