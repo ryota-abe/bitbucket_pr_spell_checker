@@ -7,6 +7,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "materialize-css": "^1.0.0",
     "typo-js": "^1.2.1",
     "typo-js-ts": "^2.0.4",
     "webextension-polyfill-ts": "^0.11.0"

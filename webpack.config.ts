@@ -37,6 +37,8 @@ const config: ConfigurationFactory = () => {
       new CopyWebpackPlugin([
         { from: 'src/manifest.json', to: '.', transform: content => content.toString().replace('__VERSION__', packageJson.version) },
         { from: 'public', to: '.' },
+        { from: 'node_modules/materialize-css/dist/js/materialize.min.js', to: '.' },
+        { from: 'node_modules/materialize-css/dist/css/materialize.min.css', to: '.' },
       ]),
       new ZipPlugin({filename: `bitbucket_pr_spell_checker-${packageJson.version}.zip`})
     ]

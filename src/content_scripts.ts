@@ -6,11 +6,21 @@ const affData = require('typo-js/dictionaries/en_US/en_US.aff')
 const dicData = require('typo-js/dictionaries/en_US/en_US.dic')
 
 let userDictionary: string[] = [];
+let options: {
+  checkOnAddedRows: boolean
+  checkOnDeletedRows: boolean
+  checkOnOtherRows: boolean
+}
 let dictionary: any
 const misspellingWords = new Set<string>()
 
-function checkSpell(article: HTMLElement) {
-  const rows = article.querySelectorAll<HTMLElement>('.type-normal .code-diff, .type-add .code-diff');
+async function checkSpell(article: HTMLElement) {
+  const selector = [
+    ...(options.checkOnAddedRows ? ['.type-add .code-diff'] : []),
+    ...(options.checkOnDeletedRows ? ['.type-del .code-diff'] : []),
+    ...(options.checkOnOtherRows ? ['.type-normal .code-diff'] : []),
+  ].join(', ');
+  const rows = selector && article.querySelectorAll<HTMLElement>(selector);
   const identifierSet = new Set<string>();
   const elementMap: Record<string, HTMLElement[]> = {};
   const splitRegex = /[0-9 \t!"#$%&'()\[\]{}\-\=^~\\|@`;+:*,.<>/_?]/;
@@ -131,16 +141,17 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
   return right;
 }
 
-window.onload = async function() {
+window.addEventListener('load', async function() {
   dictionary = new Typo('en_US', affData, dicData);
   const observer = new MutationObserver(main);
   const body = document.getElementsByTagName('body')[0];
   observer.observe(body, {subtree: true, childList: true});
-}
+  browser.storage.onChanged.addListener(main);
+});
 
 const main = async () => {
-  const items = await browser.storage.sync.get(['userDictionary']);
+  const items = await browser.storage.sync.get(['userDictionary', 'options']);
+  options = (items.options ?? { checkOnAddedRows: true, checkOnDeletedRows: false, checkOnOtherRows: true })
   userDictionary = [...additionalWords, ...(items.userDictionary ?? [])];
   Array.from(document.querySelectorAll('article')).forEach(checkSpell);
 };
-

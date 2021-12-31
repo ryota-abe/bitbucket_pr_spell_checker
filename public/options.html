@@ -1,14 +1,43 @@
 <html>
-    <head>
-        <title>User Dictionary</title>
-    </head>
-    <body>
-        <label for="user-dictionary">User Dictionary:</label>
-        <textarea id="user-dictionary" style="height: 250px; width: 100%; min-width: 200px;"></textarea>
-        <div>
-            <button id="save">Save</button>
-            <span id="message"></span>
-        </div>
-        <script src="options.js"></script>
-    </body>
+
+<head>
+  <link rel="stylesheet" href="materialize.min.css">
+  <title>Bitbuckt PR Spell Checker</title>
+</head>
+
+<body style="padding: 0 1em;">
+  <div>
+    <h5>User Dictionary</h5>
+    <textarea class="flow-text" id="user-dictionary" style="height: 250px; width: 100%; min-width: 300px;"></textarea>
+  </div>
+
+  <div>
+    <h5>Options</h5>
+    <div>
+      <label>
+        <input id="check-on-added" type="checkbox" class="filled-in blue darken-4" />
+        <span>Check on added rows</span>
+      </label>
+    </div>
+    <div>
+      <label>
+        <input id="check-on-deleted" type="checkbox" class="filled-in blue darken-4" />
+        <span>Check on deleted rows</span>
+      </label>
+    </div>
+    <div>
+      <label>
+        <input id="check-on-other" type="checkbox" class="filled-in blue darken-4" />
+        <span>Check on other rows</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="row">
+    <button id="save" class="col s4 waves-effect waves-light btn right blue darken-4">Save</button>
+  </div>
+  <script src="options.js"></script>
+  <script src="materialize.min.js"></script>
+</body>
+
 </html>
