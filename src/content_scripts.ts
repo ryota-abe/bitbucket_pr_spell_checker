@@ -125,8 +125,7 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
   outer.style.borderBottom = '1px solid rgb(223, 225, 230)';
   outer.style.borderLeft = '1px solid rgb(223, 225, 230)';
   outer.style.fontFamily = 'SFMono-Medium, "SF Mono", "Segoe UI Mono", "Roboto Mono", "Ubuntu Mono", Menlo, Consolas, Courier, monospace';
-  outer.style.top = '96px';
-  outer.style.zIndex = '185';
+  outer.style.zIndex = '180';
   outer.style.overflow = 'hidden';
   outer.style.position = 'sticky'
   const left = document.createElement('div');
@@ -146,12 +145,14 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
 
   outer.append(left);
   outer.append(right);
-  const fileHeader = article.querySelector('div[data-testid="file-header"]')
+  const fileHeader = article.querySelector('div[data-testid="file-header"]') as HTMLElement
   const fileBody = fileHeader?.nextElementSibling
   if (fileHeader && fileBody) {
     fileHeader.parentElement?.insertBefore(outer, fileBody)
+    outer.style.top = `${54 + fileHeader.offsetHeight}px`
     outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('output-hidden');
     const observer = new MutationObserver(e => {
+      outer.style.top = `${54 + fileHeader.offsetHeight}px`
       outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('output-hidden');
     });
     observer.observe(fileBody, {attributes: true});
