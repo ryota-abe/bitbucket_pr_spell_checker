@@ -73,6 +73,7 @@ function createMisspelledWordButton(word: string) {
   button.innerText = word;
   button.style.boxSizing = 'border-box';
   button.style.border = '1px solid rgb(223, 225, 230)';
+  button.style.borderRadius = '3px';
   button.style.color = '#172b4d';
   button.style.backgroundColor = '#F4F5F7';
   button.style.fontSize = '12px';
@@ -125,7 +126,7 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
   outer.style.borderBottom = '1px solid rgb(223, 225, 230)';
   outer.style.borderLeft = '1px solid rgb(223, 225, 230)';
   outer.style.fontFamily = 'SFMono-Medium, "SF Mono", "Segoe UI Mono", "Roboto Mono", "Ubuntu Mono", Menlo, Consolas, Courier, monospace';
-  outer.style.zIndex = '180';
+  outer.style.zIndex = '179';
   outer.style.overflow = 'hidden';
   outer.style.position = 'sticky'
   const left = document.createElement('div');
