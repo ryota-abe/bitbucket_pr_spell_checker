@@ -71,7 +71,11 @@ async function checkSpell(article: HTMLElement) {
 function createMisspelledWordButton(word: string) {
   const button = document.createElement('button');
   button.innerText = word;
+  button.style.boxSizing = 'border-box';
   button.style.border = '1px solid rgb(223, 225, 230)';
+  button.style.color = '#172b4d';
+  button.style.backgroundColor = '#F4F5F7';
+  button.style.fontSize = '12px';
   button.style.margin = '4px';
   button.style.height = '32px';
   button.style.cursor = 'pointer';
@@ -116,37 +120,57 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
   }
   const outer = document.createElement('div');
   outer.style.display = 'flex';
-  outer.style.border = '1px solid rgb(223, 225, 230)';
-  outer.style.borderRadius = '3px';
+  outer.style.backgroundColor = 'rgb(244, 245, 247)';
+  outer.style.borderRight = '1px solid rgb(223, 225, 230)';
+  outer.style.borderBottom = '1px solid rgb(223, 225, 230)';
+  outer.style.borderLeft = '1px solid rgb(223, 225, 230)';
   outer.style.fontFamily = 'SFMono-Medium, "SF Mono", "Segoe UI Mono", "Roboto Mono", "Ubuntu Mono", Menlo, Consolas, Courier, monospace';
+  outer.style.top = '96px';
+  outer.style.zIndex = '185';
+  outer.style.overflow = 'hidden';
+  outer.style.position = 'sticky'
   const left = document.createElement('div');
   left.style.display = 'inline-block';
   left.style.color = 'rgb(94, 108, 132)';
-  left.style.backgroundColor = 'rgb(244, 245, 247)';
   left.style.borderRight = '1px solid rgb(223, 225, 230)';
-  left.style.padding = '8px';
+  left.style.padding = '3px 8px';
   left.style.lineHeight = '32px';
-  left.style.width = '40px';
+  left.style.width = '39px';
   left.innerText = 'typo?';
-  setErrorStyle(left);
   const right = document.createElement('div') as HTMLElement;
   right.className = 'spell-check-output';
+  right.style.backgroundColor = 'white';
   right.style.display = 'inline-block';
-  right.style.flexShrink = '1';
-  right.style.padding = '8px';
+  right.style.flexGrow = '1';
+  right.style.padding = '0 8px';
 
   outer.append(left);
   outer.append(right);
-  article.prepend(outer);
+  const fileHeader = article.querySelector('div[data-testid="file-header"]')
+  const fileBody = fileHeader?.nextElementSibling
+  if (fileHeader && fileBody) {
+    fileHeader.parentElement?.insertBefore(outer, fileBody)
+    outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('output-hidden');
+    const observer = new MutationObserver(e => {
+      outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('output-hidden');
+    });
+    observer.observe(fileBody, {attributes: true});
+  }
   return right;
 }
 
 window.addEventListener('load', async function() {
   dictionary = new Typo('en_US', affData, dicData);
+
   const observer = new MutationObserver(main);
   const body = document.getElementsByTagName('body')[0];
   observer.observe(body, {subtree: true, childList: true});
+
   browser.storage.onChanged.addListener(main);
+
+  const style = document.createElement('style');
+  style.innerText = `.output-hidden { display: none !important; }`;
+  document.querySelector('head')?.appendChild(style);
 });
 
 const main = async () => {
