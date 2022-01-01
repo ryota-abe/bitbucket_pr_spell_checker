@@ -71,15 +71,7 @@ async function checkSpell(article: HTMLElement) {
 function createMisspelledWordButton(word: string) {
   const button = document.createElement('button');
   button.innerText = word;
-  button.style.boxSizing = 'border-box';
-  button.style.border = '1px solid rgb(223, 225, 230)';
-  button.style.borderRadius = '3px';
-  button.style.color = '#172b4d';
-  button.style.backgroundColor = '#F4F5F7';
-  button.style.fontSize = '12px';
-  button.style.margin = '4px';
-  button.style.height = '32px';
-  button.style.cursor = 'pointer';
+  button.className = 'spell-checker-button';
   return button;
 }
 
@@ -115,46 +107,30 @@ function camelToWords(camel: string) {
 }
 
 function getOutputDiv(article: HTMLElement): HTMLElement {
-  const div = article.getElementsByClassName('spell-check-output')[0] as HTMLElement;
+  const div = article.getElementsByClassName('spell-checker-right')[0] as HTMLElement;
   if (div) {
     return div;
   }
-  const outer = document.createElement('div');
-  outer.style.display = 'flex';
-  outer.style.backgroundColor = 'rgb(244, 245, 247)';
-  outer.style.borderRight = '1px solid rgb(223, 225, 230)';
-  outer.style.borderBottom = '1px solid rgb(223, 225, 230)';
-  outer.style.borderLeft = '1px solid rgb(223, 225, 230)';
-  outer.style.fontFamily = 'SFMono-Medium, "SF Mono", "Segoe UI Mono", "Roboto Mono", "Ubuntu Mono", Menlo, Consolas, Courier, monospace';
-  outer.style.zIndex = '179';
-  outer.style.overflow = 'hidden';
-  outer.style.position = 'sticky'
-  const left = document.createElement('div');
-  left.style.display = 'inline-block';
-  left.style.color = 'rgb(94, 108, 132)';
-  left.style.borderRight = '1px solid rgb(223, 225, 230)';
-  left.style.padding = '3px 8px';
-  left.style.lineHeight = '32px';
-  left.style.width = '39px';
-  left.innerText = 'typo?';
-  const right = document.createElement('div') as HTMLElement;
-  right.className = 'spell-check-output';
-  right.style.backgroundColor = 'white';
-  right.style.display = 'inline-block';
-  right.style.flexGrow = '1';
-  right.style.padding = '0 8px';
 
+  const outer = document.createElement('div');
+  const left = document.createElement('div');
+  const right = document.createElement('div');
+  outer.className = 'spell-checker-outer';
+  left.className = 'spell-checker-left';
+  right.className = 'spell-checker-right';
+  left.innerText = 'typo?';
   outer.append(left);
   outer.append(right);
+
   const fileHeader = article.querySelector('div[data-testid="file-header"]') as HTMLElement
   const fileBody = fileHeader?.nextElementSibling
   if (fileHeader && fileBody) {
     fileHeader.parentElement?.insertBefore(outer, fileBody)
     outer.style.top = `${54 + fileHeader.offsetHeight}px`
-    outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('output-hidden');
+    outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('spell-checker-hidden');
     const observer = new MutationObserver(e => {
       outer.style.top = `${54 + fileHeader.offsetHeight}px`
-      outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('output-hidden');
+      outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('spell-checker-hidden');
     });
     observer.observe(fileBody, {attributes: true});
   }
@@ -171,7 +147,7 @@ window.addEventListener('load', async function() {
   browser.storage.onChanged.addListener(main);
 
   const style = document.createElement('style');
-  style.innerText = `.output-hidden { display: none !important; }`;
+  style.innerText = require('./style.css');
   document.querySelector('head')?.appendChild(style);
 });
 

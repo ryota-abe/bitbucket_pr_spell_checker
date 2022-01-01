@@ -1,0 +1,43 @@
+.spell-checker-hidden {
+  display: none !important;
+}
+
+.spell-checker-outer {
+  display: flex;
+  background-color: rgb(244, 245, 247);
+  border-right: 1px solid rgb(223, 225, 230);
+  border-bottom: 1px solid rgb(223, 225, 230);
+  border-left: 1px solid rgb(223, 225, 230);
+  font-family: SFMono-Medium, "SF Mono", "Segoe UI Mono", "Roboto Mono", "Ubuntu Mono", Menlo, Consolas, Courier, monospace;
+  z-index: 179;
+  overflow: hidden;
+  position: sticky
+}
+
+.spell-checker-left {
+  display: inline-block;
+  color: rgb(94, 108, 132);
+  border-right: 1px solid rgb(223, 225, 230);
+  padding: 3px 8px;
+  line-height: 32px;
+  width: 39px;
+}
+
+.spell-checker-right {
+  background-color: white;
+  display: inline-block;
+  flex-grow: 1;
+  padding: 0 8px;
+}
+
+.spell-checker-button {
+  box-sizing: border-box;
+  border: 1px solid rgb(223, 225, 230);
+  border-radius: 3px;
+  color: #172b4d;
+  background-color: #F4F5F7;
+  font-size: 12px;
+  margin: 4px;
+  height: 32px;
+  cursor: pointer;
+}

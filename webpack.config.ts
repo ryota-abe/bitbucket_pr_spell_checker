@@ -24,7 +24,7 @@ const config: ConfigurationFactory = () => {
           exclude: '/node_modules/'
         },
         {
-          test: /\.(aff|dic)$/,
+          test: [/\.(aff|dic)$/, /style.css$/],
           loader: 'raw-loader',
           options: { esModule: false },
         },
