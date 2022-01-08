@@ -1,48 +1,53 @@
-import { ConfigurationFactory } from 'webpack'
-import path from 'path'
-import CopyWebpackPlugin from 'copy-webpack-plugin'
+import {ConfigurationFactory} from 'webpack';
+import path from 'path';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 
-const ZipPlugin = require('zip-webpack-plugin')
-const packageJson = require('./package.json')
+const ZipPlugin = require('zip-webpack-plugin');
+const packageJson = require('./package.json');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const config: ConfigurationFactory = () => {
   return {
     mode: 'development',
     entry: {
-      content_scripts: path.join(__dirname, 'src', 'content_scripts.ts')
+      content_scripts: path.join(__dirname, 'src', 'content_scripts.ts'),
     },
     devtool: false,
     output: {
       path: path.join(__dirname, 'dist'),
-      filename: '[name].js'
+      filename: '[name].js',
     },
     module: {
       rules: [
         {
           test: /\.ts$/,
           use: 'ts-loader',
-          exclude: '/node_modules/'
+          exclude: '/node_modules/',
         },
         {
           test: [/\.(aff|dic)$/, /style.css$/],
           loader: 'raw-loader',
-          options: { esModule: false },
+          options: {esModule: false},
         },
       ],
     },
     resolve: {
-      extensions: ['.ts', '.js']
+      extensions: ['.ts', '.js'],
     },
     plugins: [
       new CopyWebpackPlugin([
-        { from: 'src/manifest.json', to: '.', transform: content => content.toString().replace('__VERSION__', packageJson.version) },
-        { from: 'public', to: '.' },
-        { from: 'node_modules/materialize-css/dist/js/materialize.min.js', to: '.' },
-        { from: 'node_modules/materialize-css/dist/css/materialize.min.css', to: '.' },
+        {from: 'src/manifest.json', to: '.', transform: (content) => content.toString().replace('__VERSION__', packageJson.version)},
+        {from: 'public', to: '.'},
+        {from: 'node_modules/materialize-css/dist/js/materialize.min.js', to: '.'},
+        {from: 'node_modules/materialize-css/dist/css/materialize.min.css', to: '.'},
       ]),
-      new ZipPlugin({filename: `bitbucket_pr_spell_checker-${packageJson.version}.zip`})
-    ]
-  }
-}
+      new ZipPlugin({filename: `bitbucket_pr_spell_checker-${packageJson.version}.zip`}),
+      new ESLintPlugin({
+        extensions: ['.ts', '.js'],
+        exclude: 'node_modules',
+      }),
+    ],
+  };
+};
 
-export default config
+export default config;
