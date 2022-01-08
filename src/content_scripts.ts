@@ -62,6 +62,7 @@ async function checkSpell(article: HTMLElement) {
 
     if (misspellingWords.size) {
       console.log('Detected Misspellings: ', Array.from(misspellingWords));
+      chrome.runtime.sendMessage({badge: `${misspellingWords.size}`})
     }
   }
   // hide div when there's nothing to display
@@ -150,6 +151,14 @@ window.addEventListener('load', async function() {
   style.innerText = require('./style.css');
   document.querySelector('head')?.appendChild(style);
 });
+
+window.addEventListener('focus', () => {
+  chrome.runtime.sendMessage({badge: `${misspellingWords.size}`})
+})
+
+window.addEventListener('blur', () => {
+  chrome.runtime.sendMessage({badge: ''})
+})
 
 const main = async () => {
   const items = await browser.storage.sync.get(['userDictionary', 'options']);
