@@ -40,6 +40,8 @@ export const additionalWords = [
   'jdbc',
   'json',
   'keydown',
+  'keyof',
+  'localhost',
   'lombok',
   'metadata',
   'mousedown',
