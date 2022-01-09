@@ -12,7 +12,7 @@ let options: {
   checkOnOtherRows: boolean
 };
 let dictionary: any;
-const misspellingWords = new Set<string>();
+const typos = new Set<string>();
 
 async function checkSpell(article: HTMLElement) {
   const selector = [
@@ -60,9 +60,9 @@ async function checkSpell(article: HTMLElement) {
       buttons.forEach((b) => outputDiv.append(b));
     });
 
-    if (misspellingWords.size) {
-      console.log('Detected Misspellings: ', Array.from(misspellingWords));
-      chrome.runtime.sendMessage({badge: `${misspellingWords.size}`});
+    if (typos.size) {
+      console.log('Detected Misspellings: ', Array.from(typos));
+      chrome.runtime.sendMessage({badge: `${typos.size || ''}`});
     }
   }
   // hide div when there's nothing to display
@@ -94,7 +94,7 @@ function isMisspelled(identifier: string) {
       return false;
     }
     if (!dictionary.check(word) && !dictionary.check(word.toUpperCase())) {
-      misspellingWords.add(word);
+      typos.add(identifier);
       return true;
     }
     return false;
@@ -153,7 +153,7 @@ window.addEventListener('load', async function() {
 });
 
 window.addEventListener('focus', () => {
-  chrome.runtime.sendMessage({badge: `${misspellingWords.size}`});
+  chrome.runtime.sendMessage({badge: `${typos.size || ''}`});
 });
 
 window.addEventListener('blur', () => {
@@ -164,5 +164,6 @@ const main = async () => {
   const items = await browser.storage.sync.get(['userDictionary', 'options']);
   options = (items.options ?? {checkOnAddedRows: true, checkOnDeletedRows: false, checkOnOtherRows: true});
   userDictionary = [...additionalWords, ...(items.userDictionary ?? [])];
+  typos.clear();
   Array.from(document.querySelectorAll('article')).forEach(checkSpell);
 };
