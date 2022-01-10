@@ -18,9 +18,13 @@
   display: inline-block;
   color: rgb(94, 108, 132);
   border-right: 1px solid rgb(223, 225, 230);
-  padding: 3px 8px;
+  padding: 3px 0;
   line-height: 32px;
   width: 39px;
+  text-align: center;
+  overflow: visible;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .spell-checker-right {
@@ -40,4 +44,9 @@
   margin: 4px;
   height: 32px;
   cursor: pointer;
+}
+
+.spell-checker-error {
+  text-decoration: 1px red wavy underline;
+  text-decoration-skip-ink: none;
 }

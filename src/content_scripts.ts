@@ -45,13 +45,13 @@ async function checkSpell(article: HTMLElement) {
       const buttons = identifiers.map((word) => {
         const button = createMisspelledWordButton(word);
         button.onclick = (e) => {
-          const isSelected = button.style.textDecorationStyle === 'wavy';
+          const isSelected = button.classList.contains('spell-checker-error');
           Object.keys(elementMap).forEach((key) => {
-            elementMap[key].forEach(clearErrorStyle);
+            clearErrorStyle(...elementMap[key]);
           });
-          buttons.forEach(clearErrorStyle);
+          clearErrorStyle(...buttons);
           if (!isSelected) {
-            elementMap[word].forEach(setErrorStyle);
+            setErrorStyle(...elementMap[word]);
             setErrorStyle(button);
           }
         };
@@ -67,6 +67,12 @@ async function checkSpell(article: HTMLElement) {
   }
   // hide div when there's nothing to display
   (outputDiv.parentNode as HTMLElement).style.display = identifiers.length ? 'flex' : 'none';
+
+  const gutter = article.querySelector('.gutter-width-apply-width');
+  const left = outputDiv.parentNode?.querySelector<HTMLElement>('.spell-checker-left');
+  if (gutter && left) {
+    left.style.width = `${gutter.clientWidth}px`;
+  }
 }
 
 function createMisspelledWordButton(word: string) {
@@ -76,13 +82,12 @@ function createMisspelledWordButton(word: string) {
   return button;
 }
 
-function setErrorStyle(element: HTMLElement) {
-  element.style.textDecoration = '1px red wavy underline';
-  element.style.textDecorationSkipInk = 'none';
+function setErrorStyle(...elements: HTMLElement[]) {
+  elements.forEach((element) => element.classList.add('spell-checker-error'));
 }
 
-function clearErrorStyle(element: HTMLElement) {
-  element.style.textDecoration = 'none';
+function clearErrorStyle(...elements: HTMLElement[]) {
+  elements.forEach((element) => element.classList.remove('spell-checker-error'));
 }
 
 function isMisspelled(identifier: string) {
