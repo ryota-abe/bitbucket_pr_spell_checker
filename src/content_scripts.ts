@@ -12,67 +12,78 @@ let options: {
   checkOnOtherRows: boolean
 };
 let dictionary: any;
-const typos = new Set<string>();
+interface CheckResult {typos: string[], rowsCount: number}
+const checkResultMap = new Map<HTMLElement, CheckResult>();
 
-async function checkSpell(article: HTMLElement) {
-  const selector = [
-    ...(options.checkOnAddedRows ? ['.type-add .code-diff'] : []),
-    ...(options.checkOnDeletedRows ? ['.type-del .code-diff'] : []),
-    ...(options.checkOnOtherRows ? ['.type-normal .code-diff'] : []),
-  ].join(', ');
-  const rows = selector && article.querySelectorAll<HTMLElement>(selector);
-  const identifierSet = new Set<string>();
-  const elementMap: Record<string, HTMLElement[]> = {};
+function spellCheck(article: HTMLElement) {
+  const typoSet = new Set<string>();
+  const typoRowMap: Record<string, HTMLElement[]> = {};
   const splitRegex = /[0-9 \t!"#$%&'()\[\]{}\-\=^~\\|@`;+:*,.<>/_?]/;
   const identifierRegex = /^[_a-zA-Z][_a-zA-Z0-9]*$/;
-  rows && Array.from(rows).forEach((row) => {
-    row.innerText
+  const rows = getRows(article);
+  if (checkResultMap.get(article)?.rowsCount === rows.length) {
+    return;
+  }
+
+  rows.forEach((row) => {
+    row.innerHTML
         .split(splitRegex)
         .filter((identifier) => identifierRegex.test(identifier))
         .filter(isMisspelled)
-        .forEach((identifier) => {
-          identifierSet.add(identifier);
-          elementMap[identifier] = elementMap[identifier] ? [...elementMap[identifier], row] : [row];
+        .forEach((typo) => {
+          typoSet.add(typo);
+          typoRowMap[typo] = typoRowMap[typo] ? [...typoRowMap[typo], row] : [row];
         });
   });
 
-  const identifiers = Array.from(identifierSet);
+  const typos = Array.from(typoSet);
+  checkResultMap.set(article, {typos, rowsCount: rows.length});
+  updateDom(article, typos, typoRowMap);
 
-  const outputDiv = getOutputDiv(article);
-  if (outputDiv.getElementsByTagName('button').length !== identifiers.length) {
-    setTimeout(() => {
-      outputDiv.innerHTML = '';
-      const buttons = identifiers.map((word) => {
-        const button = createMisspelledWordButton(word);
-        button.onclick = (e) => {
-          const isSelected = button.classList.contains('spell-checker-error');
-          Object.keys(elementMap).forEach((key) => {
-            clearErrorStyle(...elementMap[key]);
-          });
-          clearErrorStyle(...buttons);
-          if (!isSelected) {
-            setErrorStyle(...elementMap[word]);
-            setErrorStyle(button);
-          }
-        };
-        return button;
-      });
-      buttons.forEach((b) => outputDiv.append(b));
-    });
-
-    if (typos.size) {
-      console.log('Detected Misspellings: ', Array.from(typos));
-      chrome.runtime.sendMessage({badge: `${typos.size || ''}`});
-    }
+  if (typos.length > 0) {
+    console.log('Detected Misspellings: ', typos);
+    setBadge();
   }
+}
+
+function updateDom(article: HTMLElement, typos: string[], typoRowMap: Record<string, HTMLElement[]>) {
+  const outputDiv = getOutputDiv(article);
+  setTimeout(() => {
+    outputDiv.innerHTML = '';
+    const buttons = typos.map((typo) => {
+      const button = createMisspelledWordButton(typo);
+      button.onclick = (e) => {
+        const isSelected = button.classList.contains('spell-checker-error');
+        if (!isSelected) {
+          setErrorStyle(...typoRowMap[typo]);
+          setErrorStyle(button);
+        } else {
+          clearErrorStyle(...typoRowMap[typo]);
+          clearErrorStyle(button);
+        }
+      };
+      return button;
+    });
+    buttons.forEach((b) => outputDiv.append(b));
+  });
+
   // hide div when there's nothing to display
-  (outputDiv.parentNode as HTMLElement).style.display = identifiers.length ? 'flex' : 'none';
+  (outputDiv.parentNode as HTMLElement).style.display = typos.length ? 'flex' : 'none';
 
   const gutter = article.querySelector('.gutter-width-apply-width');
   const left = outputDiv.parentNode?.querySelector<HTMLElement>('.spell-checker-left');
   if (gutter && left) {
     left.style.width = `${gutter.clientWidth}px`;
   }
+}
+
+function getRows(article: HTMLElement) {
+  const selector = [
+    ...(options.checkOnAddedRows ? ['.type-add .code-diff'] : []),
+    ...(options.checkOnDeletedRows ? ['.type-del .code-diff'] : []),
+    ...(options.checkOnOtherRows ? ['.type-normal .code-diff'] : []),
+  ].join(', ');
+  return selector ? article.querySelectorAll<HTMLElement>(selector) : [];
 }
 
 function createMisspelledWordButton(word: string) {
@@ -99,7 +110,6 @@ function isMisspelled(identifier: string) {
       return false;
     }
     if (!dictionary.check(word) && !dictionary.check(word.toUpperCase())) {
-      typos.add(identifier);
       return true;
     }
     return false;
@@ -143,6 +153,22 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
   return right;
 }
 
+function setBadge() {
+  const typosInThisPage = Array.from(checkResultMap).flatMap(([__, {typos}]) => typos);
+  chrome.runtime.sendMessage({badge: `${typosInThisPage.length || ''}`});
+}
+
+function clearBadge() {
+  chrome.runtime.sendMessage({badge: ''});
+}
+
+const main = async () => {
+  const items = await browser.storage.sync.get(['userDictionary', 'options']);
+  options = (items.options ?? {checkOnAddedRows: true, checkOnDeletedRows: false, checkOnOtherRows: true});
+  userDictionary = [...additionalWords, ...(items.userDictionary ?? [])];
+  Array.from(document.querySelectorAll('article')).forEach(spellCheck);
+};
+
 window.addEventListener('load', async function() {
   dictionary = new Typo('en_US', affData, dicData);
 
@@ -150,25 +176,17 @@ window.addEventListener('load', async function() {
   const body = document.getElementsByTagName('body')[0];
   observer.observe(body, {subtree: true, childList: true});
 
-  browser.storage.onChanged.addListener(main);
-
   const style = document.createElement('style');
   style.innerText = require('./style.css');
   document.querySelector('head')?.appendChild(style);
 });
 
-window.addEventListener('focus', () => {
-  chrome.runtime.sendMessage({badge: `${typos.size || ''}`});
-});
+window.addEventListener('focus', setBadge);
 
-window.addEventListener('blur', () => {
-  chrome.runtime.sendMessage({badge: ''});
-});
+window.addEventListener('blur', clearBadge);
 
-const main = async () => {
-  const items = await browser.storage.sync.get(['userDictionary', 'options']);
-  options = (items.options ?? {checkOnAddedRows: true, checkOnDeletedRows: false, checkOnOtherRows: true});
-  userDictionary = [...additionalWords, ...(items.userDictionary ?? [])];
-  typos.clear();
-  Array.from(document.querySelectorAll('article')).forEach(checkSpell);
-};
+browser.storage.onChanged.addListener(() => {
+  checkResultMap.clear();
+  Array.from(document.getElementsByClassName('spell-checker-error')).forEach((e) => clearErrorStyle(e as HTMLElement));
+  main();
+});
