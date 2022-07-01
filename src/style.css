@@ -32,6 +32,8 @@
   display: inline-block;
   flex-grow: 1;
   padding: 0 8px;
+  max-height: 92px;
+  overflow-y: auto;
 }
 
 .spell-checker-button {

@@ -142,13 +142,13 @@ function getOutputDiv(article: HTMLElement): HTMLElement {
   const fileBody = fileHeader?.nextElementSibling;
   if (fileHeader && fileBody) {
     fileHeader.parentElement?.insertBefore(outer, fileBody);
-    outer.style.top = `${54 + fileHeader.offsetHeight}px`;
-    outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('spell-checker-hidden');
-    const observer = new MutationObserver((e) => {
-      outer.style.top = `${54 + fileHeader.offsetHeight}px`;
+    const adjustPosition = () => {
+      outer.style.top = `calc(${getComputedStyle(fileHeader).top} + ${fileHeader.offsetHeight}px)`;
       outer.classList[fileBody.clientHeight === 0 ? 'add' : 'remove']('spell-checker-hidden');
-    });
-    observer.observe(fileBody, {attributes: true});
+    };
+    adjustPosition();
+    new MutationObserver(adjustPosition).observe(fileBody, {attributes: true});
+    new ResizeObserver(adjustPosition).observe(fileHeader);
   }
   return right;
 }
