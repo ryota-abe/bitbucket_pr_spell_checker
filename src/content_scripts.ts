@@ -5,7 +5,7 @@ const Typo = require('typo-js') as any;
 const affData = require('typo-js/dictionaries/en_US/en_US.aff');
 const dicData = require('typo-js/dictionaries/en_US/en_US.dic');
 
-let userDictionary: string[] = [];
+let userDictionary: {words: Set<string>, identifiers: Set<string>};
 let options: {
   checkOnAddedRows: boolean
   checkOnDeletedRows: boolean
@@ -102,11 +102,14 @@ function clearErrorStyle(...elements: HTMLElement[]) {
 }
 
 function isMisspelled(identifier: string) {
+  if (userDictionary.identifiers.has(identifier)) {
+    return false;
+  }
   return camelToWords(identifier).some((word) => {
     if (word.length < 4) {
       return false;
     }
-    if (userDictionary.includes(word.toLowerCase())) {
+    if (userDictionary.words.has(word.toLowerCase())) {
       return false;
     }
     if (!dictionary.check(word) && !dictionary.check(word.toUpperCase())) {
@@ -162,10 +165,20 @@ function clearBadge() {
   chrome.runtime.sendMessage({badge: ''});
 }
 
-const main = async () => {
+async function loadSettings() {
   const items = await browser.storage.sync.get(['userDictionary', 'options']);
+  const singleWordRegex = /^[a-zA-Z][a-z]+$/;
+  const words = ((items.userDictionary ?? []) as string[]).filter((s) => s.match(singleWordRegex));
+  const identifiers = ((items.userDictionary ?? []) as string[]).filter((s) => !s.match(singleWordRegex));
+  userDictionary = {
+    words: new Set([...additionalWords, ...words]),
+    identifiers: new Set(identifiers),
+  };
   options = (items.options ?? {checkOnAddedRows: true, checkOnDeletedRows: false, checkOnOtherRows: true});
-  userDictionary = [...additionalWords, ...(items.userDictionary ?? [])];
+}
+
+const main = async () => {
+  if (!userDictionary) await loadSettings();
   Array.from(document.querySelectorAll('article')).forEach(spellCheck);
 };
 
@@ -185,8 +198,9 @@ window.addEventListener('focus', setBadge);
 
 window.addEventListener('blur', clearBadge);
 
-browser.storage.onChanged.addListener(() => {
+browser.storage.onChanged.addListener(async () => {
   checkResultMap.clear();
   Array.from(document.getElementsByClassName('spell-checker-error')).forEach((e) => clearErrorStyle(e as HTMLElement));
+  await loadSettings();
   main();
 });

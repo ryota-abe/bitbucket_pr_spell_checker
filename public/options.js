@@ -1,6 +1,6 @@
 function onSave() {
   const dic = document.getElementById('user-dictionary');
-  const userDictionary = dic.value.split('\n').map((s) => s.trim().toLowerCase()).filter((s) => s);
+  const userDictionary = dic.value.split('\n').map((s) => s.trim()).filter((s) => s);
   const checkOnAddedRows = document.getElementById('check-on-added').checked;
   const checkOnDeletedRows = document.getElementById('check-on-deleted').checked;
   const checkOnOtherRows = document.getElementById('check-on-other').checked;
